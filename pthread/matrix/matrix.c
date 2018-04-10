@@ -12,7 +12,7 @@ bound x[MAX_THREAD];
 
 unsigned long (*AA)[2048];
 unsigned long (*CC)[2048];
-unsigned long D[][2048];
+unsigned long (*DD)[2048];
 
 void *mult (void *thread_id) {
     long t = (long)thread_id;
@@ -22,7 +22,7 @@ void *mult (void *thread_id) {
         for (int j = 0; j < bd.n; j++) {
             unsigned long sum = 0;    // overflow, let it go.
             for (int k = 0; k < bd.n; k++)
-                sum += (*(AA+i))[k] * D[j][k];
+                sum += (*(AA+i))[k] * (*(DD+j))[k];
             (*(CC+i))[j] = sum;
         }
     }
@@ -33,12 +33,14 @@ void *mult (void *thread_id) {
 void multiply(int N, unsigned long A[][2048], unsigned long B[][2048], unsigned long C[][2048]) {
 
     // transpose B = D
-    AA = A;
-    CC = C;
-
+    unsigned long D[][2048];
     for ( int i = 0; i < N; i++ )
         for ( int j = 0; j < N; j++ )
             D[i][j] = B[j][i];
+
+    AA = A;
+    CC = C;
+    DD = D;
 
     // thread
     pthread_t threads[MAX_THREAD];

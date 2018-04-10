@@ -8,6 +8,7 @@ void *printHello(void *thread_id)
 {
    long tid = (long)thread_id;
    printf("printHello: tid = %ld\n", tid);
+
    pthread_exit(NULL);
 }
 /* main */
