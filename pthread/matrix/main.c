@@ -39,11 +39,11 @@ int main() {
         rand_gen(S1, N, A);
         rand_gen(S2, N, B);
         multiply(N, A, B, C);
-#ifdef DEBUG
+// #ifdef DEBUG
         print_matrix(N, A);
         print_matrix(N, B);
         print_matrix(N, C);
-#endif
+// #endif
         printf("%u\n", signature(N, C));
     }
     return 0;
