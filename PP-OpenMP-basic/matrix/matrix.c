@@ -1,5 +1,5 @@
 #include "matrix.h"
-#include <omp.h >
+#include <omp.h>
 
 #define MAX_THREAD 4
 
