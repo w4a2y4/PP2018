@@ -9,6 +9,7 @@
 #include <inttypes.h>
  
 #define MAXK 4096
+#define CHUNK 1024
 /* main */
 int main(int argc, char *argv[])
 {
@@ -68,8 +69,8 @@ int main(int argc, char *argv[])
 
     while( scanf("%u%u%u", &N, &key1, &key2) == 3) {
  
-        int gl = N/32 - (N/32)%256 + 256;
- 
+        int gl = N - N%CHUNK + CHUNK;
+
         /* setarg */
         status = clSetKernelArg(kernel, 0, sizeof(cl_uint), (void *)&key1);
         assert(status == CL_SUCCESS);
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
  
         /* setshape */
         size_t globalThreads[] = {(size_t)( gl )};
-        size_t localThreads[] = {256};
+        size_t localThreads[] = {CHUNK};
  
         status = clEnqueueNDRangeKernel(commandQueue, kernel, 1, NULL, 
                    globalThreads, localThreads, 0, NULL, NULL);
@@ -100,20 +101,19 @@ int main(int argc, char *argv[])
         // print
         uint32_t sum = 0;
         // #pragma omp parallel for reduction(+: sum)
-        for (int i = 0; i <= N/32; i++) {
+        for (int i = 0; i < gl/CHUNK; i++) {
             sum += C[i];
         }
  
         printf("%" PRIu32 "\n", sum);
- 
-        free(C);
-        clReleaseMemObject(bufferC);
     }
  
     clReleaseContext(context);    /* context etcmake */
     clReleaseCommandQueue(commandQueue);
     clReleaseProgram(program);
     clReleaseKernel(kernel);
+    clReleaseMemObject(bufferC);
+    free(C);
     return 0;
 }
 /* end */
