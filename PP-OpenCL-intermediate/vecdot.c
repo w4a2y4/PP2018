@@ -10,6 +10,7 @@
  
 #define MAXK 4096
 #define CHUNK 1024
+#define SIZE 256
 /* main */
 int main(int argc, char *argv[])
 {
@@ -69,7 +70,7 @@ int main(int argc, char *argv[])
 
     while( scanf("%u%u%u", &N, &key1, &key2) == 3) {
  
-        int gl = N - N%CHUNK + CHUNK;
+        int gl = (N/SIZE) - (N/SIZE)%CHUNK + CHUNK;
 
         /* setarg */
         status = clSetKernelArg(kernel, 0, sizeof(cl_uint), (void *)&key1);
