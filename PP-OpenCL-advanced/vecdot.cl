@@ -1,7 +1,7 @@
 #define CHUNK 1024
-#define SIZE 256
+#define SIZE 1024
 
-__kernel void add(unsigned int key1, unsigned int key2, __global unsigned int *C, unsigned int N) 
+__kernel void add(unsigned int key1, unsigned int key2, __global unsigned int *C, unsigned int N, unsigned int base) 
 {
     __local int buff[CHUNK];
 
@@ -10,10 +10,12 @@ __kernel void add(unsigned int key1, unsigned int key2, __global unsigned int *C
     unsigned int group_id = get_group_id(0);
 
     // generate vector in local memory
-    int start = global_id * SIZE;
     buff[local_id] = 0;
+    int start = global_id * SIZE + base;
     int end = (global_id+1) * SIZE < N ? (global_id+1) * SIZE : N;
-    for( int idx = global_id * SIZE; idx < end; idx ++ ) {
+    end += base;
+
+    for( int idx = start; idx < end; idx ++ ) {
         unsigned int rta = (idx << (key1&31)) | (idx >> (SIZE-(key1&31)));
         unsigned int rtb = (idx << (key2&31)) | (idx >> (SIZE-(key2&31)));
         buff[local_id] += ( ( rta + key1 ) ^ key1 ) * ( ( rtb + key2 ) ^ key2 );
