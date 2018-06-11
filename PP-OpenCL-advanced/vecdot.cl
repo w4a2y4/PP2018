@@ -1,5 +1,13 @@
 #define CHUNK 1024
 #define SIZE 1024
+#define uint32_t unsigned int
+
+static inline uint32_t rotate_left(uint32_t x, uint32_t n) {
+    return  (x << n) | (x >> (32-n));
+}
+static inline uint32_t encrypt(uint32_t m, uint32_t key) {
+    return (rotate_left(m, key&31) + key)^key;
+}
 
 __kernel void add(unsigned int key1, unsigned int key2, __global unsigned int *C, unsigned int N, unsigned int base) 
 {
@@ -15,11 +23,8 @@ __kernel void add(unsigned int key1, unsigned int key2, __global unsigned int *C
     int end = (global_id+1) * SIZE < N ? (global_id+1) * SIZE : N;
     end += base;
 
-    for( int idx = start; idx < end; idx ++ ) {
-        unsigned int rta = (idx << (key1&31)) | (idx >> (SIZE-(key1&31)));
-        unsigned int rtb = (idx << (key2&31)) | (idx >> (SIZE-(key2&31)));
-        buff[local_id] += ( ( rta + key1 ) ^ key1 ) * ( ( rtb + key2 ) ^ key2 );
-    }
+    for( int idx = start; idx < end; idx ++ )
+        buff[local_id] += encrypt(idx, key1) * encrypt(idx, key2);
 
     barrier(CLK_LOCAL_MEM_FENCE);
 
